@@ -1,0 +1,21 @@
+from pathlib import Path
+import json
+from datetime import datetime
+
+ROOT = Path(__file__).resolve().parents[1]
+SCREEN_DIR = ROOT / "screenshots"
+OUT_FILE = ROOT / "screenshots.json"
+ALLOWED = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+
+items = []
+for p in sorted(SCREEN_DIR.iterdir()):
+    if p.is_file() and p.suffix.lower() in ALLOWED:
+        stat = p.stat()
+        items.append({
+            "filename": p.name,
+            "timestamp": datetime.fromtimestamp(stat.st_mtime).isoformat(sep=" ", timespec="seconds"),
+            "label": p.stem
+        })
+
+OUT_FILE.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+print(f"Wrote {len(items)} items to {OUT_FILE}")
